@@ -2,15 +2,17 @@ package com.devDJ.cinerma.Entities;
 
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,23 +27,33 @@ import lombok.Setter;
 public class Cinemas {
     @Id
     @GeneratedValue(strategy=GenerationType.AUTO)
-    //@Column(name = "id_cinemas") 
     private Long idCinemas;
     @Column
     private String nameCinema;
-    @Column
-    private String city;
     @Column
     private String description;
     @Column
     private String address;
 
-    @ManyToMany(mappedBy = "cinemas")
-    private List<Movie> movies;
+    //Contructor personalizado para llenar los datos cine
+    public Cinemas(String nameCinema, String description, String address, Cities city) {
+        this.nameCinema = nameCinema;
+        this.description = description;
+        this.address = address;
+        this.city = city;
+    }
 
-    //relacion de uno a muchos rooms
-    @OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    @JoinColumn(name = "id_salas")
+
+    /********************************Relaciones con otras tablas****************************** */
+    //muchos cines estan relacionados con una ciudad
+    @ManyToOne
+    @JoinColumn(name = "city_id")
+    @JsonBackReference
+    private Cities city;
+
+    //Un cine Tine muchas salas y una sala pertenece a un cine
+    @OneToMany(mappedBy = "cine", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Rooms> rooms;
 
 }

@@ -1,15 +1,15 @@
 package com.devDJ.cinerma.Entities;
 
 import java.util.List;
-
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,16 +24,33 @@ import lombok.Setter;
 public class Rooms {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    //@Column(name = "id_rooms") 
     private Long idRooms;
     private String name;
-    private Long rows;
+    private Long rows;  // a base de la cantidad de columas y filas obtnemos la capacidad del cine
     private Long colum;
 
+    //Contructor personalizado para insertar data de prueba
+    public Rooms(String name, Long rows, Long colum, Cinemas cine) {
+        this.name = name;
+        this.rows = rows;
+        this.colum = colum;
+        this.cine = cine;
+    }
 
-    //Relacion de uno a muchos una sala puede tiene deferentes horarios
-    @OneToMany(fetch = FetchType.LAZY, cascade =  CascadeType.ALL )
-    @JoinColumn(name = "id_horarios")
-    private List<Horario> horarios;
+    @ManyToOne
+    @JoinColumn(name = "cine_id")
+    @JsonBackReference
+    private Cinemas cine;
+
     
+
+    
+    @OneToMany(mappedBy = "room")
+    @JsonBackReference
+    private List<Schedule> schedules;
+
+    /*@OneToMany(mappedBy = "room")
+    @JsonManagedReference
+    private List<Schedule> schedules;*/
+
 }
